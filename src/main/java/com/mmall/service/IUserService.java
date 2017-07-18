@@ -1,8 +1,11 @@
 package com.mmall.service;
 
+import com.mmall.common.ServerResponse;
+import com.mmall.pojo.User;
+
 /**
  * Created by Zhang Yu on 2017/7/17.
  */
 public interface IUserService {
-    Object login(String username, String password);
+    ServerResponse<User> login(String username, String password);
 }
