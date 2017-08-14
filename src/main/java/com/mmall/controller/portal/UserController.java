@@ -78,7 +78,23 @@ public class UserController {
     @RequestMapping(value = "forget_check_answer.do", method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse<String> forgetCheckAnswer(String username, String question, String answer){
-        return iUserService.checkAnswer(username,question,answer);
+        return iUserService.checkAnswer(username, question, answer);
+    }
+
+    @RequestMapping(value = "forget_reset_password.do", method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<String> forgetResetPassword(String username, String passwordNew, String forgetToken){
+        return iUserService.forgetResetPassword(username,passwordNew,forgetToken);
+    }
+
+    @RequestMapping(value = "reset_password.do", method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<String> resetPassword(HttpSession session, String passwordOld, String passwordNew){
+        User user = (User)session.getAttribute(Const.CURRENT_USER);
+        if (user == null){
+            return ServerResponse.createByErrorMessage("用户未登录!");
+        }
+        return iUserService.resetPassword(passwordOld,passwordNew,user);
     }
 }
 
