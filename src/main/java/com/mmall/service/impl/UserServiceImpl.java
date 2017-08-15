@@ -122,7 +122,7 @@ public class UserServiceImpl implements IUserService {
         if (StringUtils.isBlank(token)){
             return ServerResponse.createByErrorMessage("token无效或者过期");
         }
-        if (StringUtils.equals(forgetToken,token)){
+        if (StringUtils.equals(forgetToken, token)){
             String md5Password = MD5Util.MD5EncodeUtf8(passwordNew);
             int rowCount = userMapper.updatePasswordByUsername(username,md5Password);
             if (rowCount > 0){
@@ -148,5 +148,35 @@ public class UserServiceImpl implements IUserService {
             return ServerResponse.createBySuccessMessage("密码更新成功！");
         }
         return ServerResponse.createByErrorMessage("密码更新失败！");
+    }
+
+    public ServerResponse<User> updateInformation(User user){
+        //username是不能被更新的
+        //email也要进行一个校验，校验新的email是不是已经存在，并且存在的email如果相同的话，不能是我们当前这个用户的。
+        int resultCount = userMapper.checkEmailByUserId(user.getEmail(),user.getId());
+        if (resultCount > 0){
+            return ServerResponse.createByErrorMessage("email已存在，请更新email再尝试更新");
+        }
+        User updateUser = new User();
+        updateUser.setId(user.getId());
+        updateUser.setEmail(user.getEmail());
+        updateUser.setPhone(user.getPhone());
+        updateUser.setQuestion(user.getQuestion());
+        updateUser.setAnswer(user.getAnswer());
+
+        int updateCount = userMapper.updateByPrimaryKeySelective(updateUser);
+        if (updateCount > 0){
+            return ServerResponse.createBySuccessMessage("更新个人信息成功",updateUser);
+        }
+        return ServerResponse.createByErrorMessage("更新个人信息失败");
+    }
+
+    public ServerResponse<User> getInformation(Integer userId){
+        User user = userMapper.selectByPrimaryKey(userId);
+        if (user == null){
+            return ServerResponse.createByErrorMessage("找不到当前用户");
+        }
+        user.setPassword(StringUtils.EMPTY);
+        return ServerResponse.createBySuccessMessage(user);
     }
 }
