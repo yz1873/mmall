@@ -6,6 +6,7 @@ import com.mmall.common.ServerResponse;
 import com.mmall.pojo.User;
 import com.mmall.service.ICategoryService;
 import com.mmall.service.IUserService;
+import javafx.scene.input.ScrollEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +33,8 @@ public class CategoryManageController {
     @RequestMapping(value = "add_category.do", method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse addCategory(HttpSession session, String categoryName,
-                                      @RequestParam(value = "parentId",defaultValue = "0") int parentId){
+                                      @RequestParam(value = "parentId",defaultValue = "0")
+                                      int parentId){
         User user = (User)session.getAttribute(Const.CURRENT_USER);
         if (user == null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请登录！");
@@ -40,6 +42,41 @@ public class CategoryManageController {
         //校验一下是否是管理员
         if (iUserService.checkAdminRole(user).isSuccess()){
             return iCategoryService.addCategory(categoryName,parentId);
+        }
+        else {
+            return ServerResponse.createByErrorMessage("无权限操作，需要管理员权限！");
+        }
+    }
+
+    @RequestMapping(value = "set_category_name.do", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse setCategoryName(HttpSession session, Integer categoryId,
+                                          String categoryName){
+        User user = (User)session.getAttribute(Const.CURRENT_USER);
+        if (user == null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请登录！");
+        }
+        //校验一下是否是管理员
+        if (iUserService.checkAdminRole(user).isSuccess()){
+            return iCategoryService.updateCategoryName(categoryId,categoryName);
+        }
+        else {
+            return ServerResponse.createByErrorMessage("无权限操作，需要管理员权限！");
+        }
+    }
+
+    @RequestMapping(value = "get_children_parallel_category.do", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse getChildrenParallelCategory(HttpSession session,
+                                                      @RequestParam(value = "categoryId",defaultValue = "0")
+                                                      Integer categoryId){
+        User user = (User)session.getAttribute(Const.CURRENT_USER);
+        if (user == null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请登录！");
+        }
+        //校验一下是否是管理员
+        if (iUserService.checkAdminRole(user).isSuccess()){
+            return iCategoryService
         }
         else {
             return ServerResponse.createByErrorMessage("无权限操作，需要管理员权限！");
